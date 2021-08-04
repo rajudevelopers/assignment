@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" href="assets/css/style.css"></link>
+		<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+		<script>
+			$(document).ready(function() {
+				$(document).on("contextmenu",function(e){
+				   return false;
+				}); 
+			});
+			$(document).keydown(function(event){
+				if( (event.which === 123) || (event.ctrlKey && event.shiftKey && event.keyCode === 73) || (event.ctrlKey && event.keyCode == 74) || (event.ctrlKey && event.keyCode == 85) || (event.ctrlKey && event.keyCode == 67)){
+				   return false;
+				}
+			});
+			searchMovie = (search) => {
+				
+				if (search.length < 3) {
+					$("#movies").html("");
+					return;
+				} else {
+					$("#loading").show();
+					$.ajax({
+						url		:	"http://www.omdbapi.com/?apikey=80b8c7af&s=" + search,
+						type	:	"GET",
+						success	:	function(response){
+							//console.log(response);
+							if(response != ''){
+								if(response['Response'] == 'True'){
+									let	Search	=	response['Search'];
+									//console.log(Search);
+									let	searchList		=	"";
+									let imdbID			=	"";
+									$.each(Search ,function(key,row){
+										imdbID		=	row.imdbID+""+key;
+										poster		=	"assets/images/no-poster.jpg";
+										if( row.Poster != 'N/A' && row.Poster != 'n/a' && row.Poster != 'na' && row.Poster != 'NA' && row.Poster != ''){
+											poster		=	row.Poster;
+										}
+										searchList		+=	'<div class="tooltip">';
+												searchList		+=	'<a target="_blank" href="'+(poster)+'" class="poster" onmouseover="getMovieInfo(`'+imdbID+'`,`'+row.imdbID+'`);" onfocusin="getMovieInfo(`'+imdbID+'`,`'+row.imdbID+'`);">';
+											searchList		+=	'<div class="gallery" >';
+													searchList		+=	'<img src="'+(poster)+'" alt="'+(row.Title)+'" width="600" height="400">';
+												searchList		+=	'<div class="title">'+formatTitle(row.Title)+'</div>';
+												searchList		+=	'<div class="movie-type">'+(row.Type)+'</div>';
+											searchList		+=	'</div>';
+											
+											searchList		+=	'<span class="tooltiptext" id="'+imdbID+'">';
+												
+											searchList		+=	'</span>';
+												searchList		+=	'</a>';
+										searchList		+=	'</div>'; 
+									});
+									//console.log(searchList);
+									$("#movies").html(searchList);
+								}else{
+									$("#movies").html("<center>"+response.Error+"</center>");
+								}
+							}
+						},
+						error	:	function(error){
+							console.log(error);
+						},
+						complete:	function(xhr){
+							$("#loading").hide();
+						}
+					});
+				}
+				
+			}
+			getMovieInfo = (id,imdbID) => {
+				//$(".poster").focusout();
+				if( $("#"+id).html() == '' ){
+					
+					$.ajax({
+						url		:	"http://www.omdbapi.com/?apikey=80b8c7af&i=" + imdbID,
+						type	:	"GET",
+						success	:	function(response){
+							//console.log(response);
+							if(response != ''){
+								if(response['Response'] == 'True'){
+									//let	Search	=	response['Search'];
+									info	=	'';
+									info	+=	'<label class="info">'+response.Title+'</label>';
+									info	+=	'<label class="info">Year : '+response.Year+'</label>';
+									info	+=	'<label class="info">Director : '+response.Director+'</label>';
+									info	+=	'<label class="info">Rating : '+response.imdbRating+'</label>';
+									
+									//console.log(searchList);
+									$("#"+id).html(info);
+								}else{
+									$("#"+id).html("<center>"+response.Error+"</center>");
+								}
+							}
+						},
+						error	:	function(error){
+							console.log(error);
+						},
+						complete:	function(xhr){
+							$("#loading").hide();
+						}
+					});
+				}
+			}
+			formatTitle = (title) => {
+				if( title.length > 40){
+					return $.trim(title.substring(0,35))+'...';
+				}
+				return $.trim(title);
+			}
+		</script>
+	</head>
+	<body>
+		<div id="loading"></div>
+		<div class="header">
+			<input type="text" class="search-box" placeholder="Search Movie or TV Show" onkeyup="searchMovie(this.value)" autofocus>
+		</div>
+		<div class="container">
+			<span id="movies" >
+				
+			</span>
+		</div>
+	</body>
+</html>

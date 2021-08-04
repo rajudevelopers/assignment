@@ -27,6 +27,7 @@ div.title {
 }
 div.movie-type {
   text-align: center;
+  text-transform:capitalize;
 }
 body {
   margin: 0;
