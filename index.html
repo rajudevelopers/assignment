@@ -4,6 +4,8 @@
 		<link rel="stylesheet" href="assets/css/style.css"></link>
 		<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
 		<script>
+			const apiurl	=	"http://www.omdbapi.com/";
+			const apikey	=	"92087764";
 			$(document).ready(function() {
 				$(document).on("contextmenu",function(e){
 				   return false;
@@ -22,16 +24,16 @@
 				} else {
 					$("#loading").show();
 					$.ajax({
-						url		:	"http://www.omdbapi.com/?apikey=80b8c7af&s=" + search,
+						url		:	apiurl+"?apikey="+apikey+"&s=" + search,
 						type	:	"GET",
 						success	:	function(response){
-							//console.log(response);
+							
 							if(response != ''){
 								if(response['Response'] == 'True'){
 									let	Search	=	response['Search'];
-									//console.log(Search);
 									let	searchList		=	"";
 									let imdbID			=	"";
+									let poster			=	"";
 									$.each(Search ,function(key,row){
 										imdbID		=	row.imdbID+""+key;
 										poster		=	"assets/images/no-poster.jpg";
@@ -39,8 +41,8 @@
 											poster		=	row.Poster;
 										}
 										searchList		+=	'<div class="tooltip">';
-												searchList		+=	'<a target="_blank" href="'+(poster)+'" class="poster" onmouseover="getMovieInfo(`'+imdbID+'`,`'+row.imdbID+'`);" onfocusin="getMovieInfo(`'+imdbID+'`,`'+row.imdbID+'`);">';
-											searchList		+=	'<div class="gallery" >';
+											searchList		+=	'<a target="_blank" href="'+(poster)+'" class="poster" onmouseover="getMovieInfo(`'+imdbID+'`,`'+row.imdbID+'`);" onfocusin="getMovieInfo(`'+imdbID+'`,`'+row.imdbID+'`);">';
+												searchList		+=	'<div class="gallery" >';
 													searchList		+=	'<img src="'+(poster)+'" alt="'+(row.Title)+'" width="600" height="400">';
 												searchList		+=	'<div class="title">'+formatTitle(row.Title)+'</div>';
 												searchList		+=	'<div class="movie-type">'+(row.Type)+'</div>';
@@ -49,10 +51,9 @@
 											searchList		+=	'<span class="tooltiptext" id="'+imdbID+'">';
 												
 											searchList		+=	'</span>';
-												searchList		+=	'</a>';
+											searchList		+=	'</a>';
 										searchList		+=	'</div>'; 
 									});
-									//console.log(searchList);
 									$("#movies").html(searchList);
 								}else{
 									$("#movies").html("<center>"+response.Error+"</center>");
@@ -70,24 +71,22 @@
 				
 			}
 			getMovieInfo = (id,imdbID) => {
-				//$(".poster").focusout();
 				if( $("#"+id).html() == '' ){
 					
 					$.ajax({
-						url		:	"http://www.omdbapi.com/?apikey=80b8c7af&i=" + imdbID,
+						url		:	apiurl+"?apikey="+apikey+"&i=" + imdbID,
 						type	:	"GET",
 						success	:	function(response){
-							//console.log(response);
+							
 							if(response != ''){
 								if(response['Response'] == 'True'){
-									//let	Search	=	response['Search'];
+									
 									info	=	'';
 									info	+=	'<label class="info">'+response.Title+'</label>';
 									info	+=	'<label class="info">Year : '+response.Year+'</label>';
 									info	+=	'<label class="info">Director : '+response.Director+'</label>';
 									info	+=	'<label class="info">Rating : '+response.imdbRating+'</label>';
 									
-									//console.log(searchList);
 									$("#"+id).html(info);
 								}else{
 									$("#"+id).html("<center>"+response.Error+"</center>");
@@ -98,7 +97,7 @@
 							console.log(error);
 						},
 						complete:	function(xhr){
-							$("#loading").hide();
+							//$("#loading").hide();
 						}
 					});
 				}
